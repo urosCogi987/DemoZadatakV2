@@ -1,4 +1,4 @@
-﻿namespace ZadatakV2.WebApi.Services
+﻿namespace ZadatakV2.Service.Abstractions
 {
     public interface IPasswordHasher
     {

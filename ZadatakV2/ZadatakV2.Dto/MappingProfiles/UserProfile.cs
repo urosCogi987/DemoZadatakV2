@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
-using ZadatakV2.WebApi.Entities;
-using ZadatakV2.WebApi.Models;
+using ZadatakV2.Dto.Models;
+using ZadatakV2.Persistance.Entities;
 
 namespace ZadatakV2.WebApi.MappingProfiles
 {
     public sealed class UserProfile : Profile
     {
         public UserProfile()        
-            => CreateMap<RegisterUserRequest, User>();
+            => CreateMap<RegisterRequest, User>();
         
     }
 }
