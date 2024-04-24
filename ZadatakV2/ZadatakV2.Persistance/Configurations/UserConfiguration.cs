@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using ZadatakV2.WebApi.Entities;
+using ZadatakV2.Persistance.Entities;
 
 namespace ZadatakV2.WebApi.Configurations
 {
@@ -12,16 +12,7 @@ namespace ZadatakV2.WebApi.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
-            builder.HasIndex(x => x.Email).IsUnique();
-            builder.HasData(new List<User>
-            {
-                new User
-                {
-                    Id = 1,
-                    Email = "admin@email.com",
-                    Password = "LcqvHMJDQsudN1qg6VRipw==;UUWrb5u0pKLH0MpmvMVfFCybh7IK0XXv+PV/jjjJLv0="
-                }
-            });
+            builder.HasIndex(x => x.Email).IsUnique();            
         }
     }
 }

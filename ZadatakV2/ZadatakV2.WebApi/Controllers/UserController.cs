@@ -2,56 +2,55 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ZadatakV2.WebApi.Entities;
-using ZadatakV2.WebApi.Models;
-using ZadatakV2.WebApi.Services;
-using static System.Net.Mime.MediaTypeNames;
+using System.Security.Claims;
+using ZadatakV2.Dto.Models;
+using ZadatakV2.Persistance.Entities;
+using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
-    {
-        private readonly IMapper _mapper;        
+    {           
         private readonly IPasswordHasher _passwordHasher;
         private readonly IJwtProvider _jwtProvider;
         private readonly ApplicationDbContext _dbContext;
 
-        public UserController(IMapper mapper, 
+
+        private readonly IAuthService _authenticationService;
+        public UserController(IAuthService authenticationService,                              
                               IPasswordHasher passwordHasher, 
                               IJwtProvider jwtProvider, 
                               ApplicationDbContext dbContext)
         {
-            _mapper = mapper;
+            _authenticationService = authenticationService;            
             _passwordHasher = passwordHasher;
             _jwtProvider = jwtProvider;
             _dbContext = dbContext;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserRequest registerRequest)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
-            registerRequest.Password = _passwordHasher.Hash(registerRequest.Password);
-            User user = _mapper.Map<User>(registerRequest);
-
-            await _dbContext.Set<User>().AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-
+            long id = await _authenticationService.RegisterUserAscync(registerRequest);                                
             return Ok();
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
+        public async Task<LoginResponse> Login([FromBody] LoginRequest loginRequest)
         {            
-            User? user = await _dbContext.Set<User>().FirstOrDefaultAsync(user => user.Email == loginRequest.Email);
+            LoginResponse response = await _authenticationService.LoginAsync(loginRequest);
+            return response;                                    
+        }
 
-            bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
+        [HttpPost("refresh")]        
+        public async Task<LoginResponse> RefreshToken([FromBody] RefreshTokenRequest refreshTokenRequest)
+        {
+            var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            LoginResponse response = await _authenticationService.RefreshTokenAsync(refreshTokenRequest);                                    
 
-            if (verified)
-                return Ok(_jwtProvider.GenerateToken(user));
-
-            return BadRequest("Invalid credentials");
+            return response;
         }
 
         [HttpGet("test")]
