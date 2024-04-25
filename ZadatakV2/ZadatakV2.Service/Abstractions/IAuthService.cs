@@ -1,11 +1,12 @@
-﻿using ZadatakV2.Dto.Models;
+﻿using ZadatakV2.Shared.Interfaces;
+using ZadatakV2.Shared.NewFolder;
 
 namespace ZadatakV2.Service.Abstractions
 {
     public interface IAuthService
     {
-        Task<long> RegisterUserAscync(RegisterRequest registerRequest);
-        Task<LoginResponse> LoginAsync(LoginRequest loginRequest);
-        Task<LoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest);
+        Task<long> RegisterUserAscync(IRegisterRequest registerRequest);
+        Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest);
+        Task<ILoginServiceResponse> RefreshTokenAsync(IRefreshTokenRequest refreshTokenRequest); 
     }
 }

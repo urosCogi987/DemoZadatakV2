@@ -25,6 +25,11 @@
   <ItemGroup>
     <ProjectReference Include="..\ZadatakV2.Dto\ZadatakV2.Dto.csproj" />
     <ProjectReference Include="..\ZadatakV2.Service\ZadatakV2.Service.csproj" />
+    <ProjectReference Include="..\ZadatakV2.Shared\ZadatakV2.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
