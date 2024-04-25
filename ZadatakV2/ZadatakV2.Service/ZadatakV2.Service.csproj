@@ -12,8 +12,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZadatakV2.Dto\ZadatakV2.Dto.csproj" />
     <ProjectReference Include="..\ZadatakV2.Persistance\ZadatakV2.Persistance.csproj" />
+    <ProjectReference Include="..\ZadatakV2.Shared\ZadatakV2.Shared.csproj" />
   </ItemGroup>
 
 </Project>

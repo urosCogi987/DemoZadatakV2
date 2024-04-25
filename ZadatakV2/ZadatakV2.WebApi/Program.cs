@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Repositories;
@@ -42,7 +43,9 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddControllers();
     services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();    
+    
+    ConfigureSwagger(services);
+
     services.AddAutoMapper(typeof(UserProfile));
 
     services.AddScoped<IUserRepository, UserRepository>();    
@@ -55,24 +58,46 @@ void ConfigureServices(IServiceCollection services)
     services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 }
 
-//void RegisterRepositories(IServiceCollection services)
-//{
-
-//}
-
-//void RegisterServices(IServiceCollection services)
-//{
-
-//}
-
-
+void ConfigureSwagger(IServiceCollection services)
+{
+    services.AddSwaggerGen(c => {
+        c.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Title = "JWTToken_Auth_API",
+            Version = "v1"
+        });
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+        {
+            Name = "Authorization",
+            Type = SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = ParameterLocation.Header,
+            Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\nExample: \"Bearer 1safsfsdfdfd\"",
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+        {
+            new OpenApiSecurityScheme {
+                Reference = new OpenApiReference {
+                    Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+        });
+    });
+}
 
 void ConfigureApp(WebApplication app)
 {    
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Zadatak");
+        });
     }
 
     app.UseHttpsRedirection();
