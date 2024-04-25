@@ -10,6 +10,7 @@ using ZadatakV2.Service.Abstractions;
 using ZadatakV2.Service.Services;
 using ZadatakV2.WebApi;
 using ZadatakV2.WebApi.MappingProfiles;
+using ZadatakV2.WebApi.Middlewares;
 using ZadatakV2.WebApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -105,6 +106,8 @@ void ConfigureApp(WebApplication app)
     app.UseAuthentication();
 
     app.UseAuthorization();
+
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     app.MapControllers();    
 }
