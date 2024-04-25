@@ -3,19 +3,18 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZadatakV2.Dto.Models;
 using ZadatakV2.Service.Abstractions;
-using ZadatakV2.Shared.Interfaces;
 using ZadatakV2.Shared.NewFolder;
 
 namespace ZadatakV2.WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class AuthenticationController : ControllerBase
     {                   
         private readonly IAuthService _authenticationService;
         private readonly IMapper _mapper;
 
-        public UserController(IAuthService authenticationService,                              
+        public AuthenticationController(IAuthService authenticationService,                              
                               IMapper mapper)
         {
             _authenticationService = authenticationService;            
