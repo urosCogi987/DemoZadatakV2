@@ -1,3 +1,5 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -5,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using ZadatakV2.Domain.Repositories;
+using ZadatakV2.Persistance.Abstractions;
 using ZadatakV2.Persistance.Repositories;
 using ZadatakV2.Service.Abstractions;
 using ZadatakV2.Service.Services;
@@ -42,19 +45,26 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddAuthorization();
 
-    services.AddControllers();
+    services.AddControllers();        
+    
+    services.AddFluentValidationAutoValidation();
+    services.AddFluentValidationClientsideAdapters();    
+    services.AddValidatorsFromAssembly(AssemblyReference.Assembly);
+
     services.AddEndpointsApiExplorer();
     
     ConfigureSwagger(services);
-
+    
     services.AddAutoMapper(typeof(UserProfile));
 
     services.AddScoped<IUserRepository, UserRepository>();    
+    services.AddScoped<IStudentRepository, StudentRepository>();
 
     services.AddScoped<IPasswordHasher, PasswordHasher>();
     services.AddScoped<IJwtProvider, JwtProvider>();
 
     services.AddScoped<IAuthService, AuthService>();
+    services.AddScoped<IStudentService, StudentService>();
 
     services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 }
