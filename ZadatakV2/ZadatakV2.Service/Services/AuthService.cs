@@ -29,60 +29,7 @@ namespace ZadatakV2.Service.Services
             _mapper = mapper;
             _jwtProvider = jwtProvider;
             _httpContextAccessor = httpContextAccessor;
-        }
-        
-        //public async Task<long> RegisterUserAscync(RegisterRequest registerRequest)
-        //{
-        //    registerRequest.Password = _passwordHasher.Hash(registerRequest.Password);
-
-        //    User user = _mapper.Map<User>(registerRequest);
-
-        //    return await _userRepository.AddUserAsync(user);            
-        //}
-
-        
-
-        //public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
-        //{
-        //    User? user = await _userRepository.FindUserByEmailAsync(loginRequest.Email);
-        //    if (user == null)
-        //        throw new Exception("Invalid credentials.");
-
-        //    bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
-        //    if (!verified)
-        //        throw new Exception("Invalid credentials.");
-
-        //    string accessToken = _jwtProvider.GenerateAccessToken(user);
-        //    string refreshToken = _jwtProvider.GenerateRefreshToken();
-
-        //    user.SetRefreshToken(refreshToken);
-        //    await _userRepository.UpdateUserAsync(user);
-
-        //    return new(accessToken, refreshToken);
-        //}
-
-        //public async Task<ILoginResponse> RefreshTokenAsync(RefreshTokenRequest refreshTokenRequest)
-        //{
-        //    var id = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    User user = await _userRepository.FindUserByIdAsync(long.Parse(id));
-        //    if (user is null)
-        //        throw new Exception("Uer with that id doesnt exist");
-
-        //    if (user.RefreshToken != refreshTokenRequest.RefreshToken)
-        //    {
-        //        user.DeleteRefreshToken();
-        //        await _userRepository.UpdateUserAsync(user);
-        //    }
-
-        //    string accessToken = _jwtProvider.GenerateAccessToken(user);
-        //    string refreshToken = _jwtProvider.GenerateRefreshToken();
-
-        //    user.SetRefreshToken(refreshToken);
-        //    await _userRepository.UpdateUserAsync(user);
-
-        //    return new LoginResponse() { AccessToken = accessToken, RefreshToken = refreshToken };
-        //}
+        }                
 
         public async Task<long> RegisterUserAscync(IRegisterRequest registerRequest)
         {
@@ -104,7 +51,7 @@ namespace ZadatakV2.Service.Services
             string accessToken = _jwtProvider.GenerateAccessToken(user);
             string refreshToken = _jwtProvider.GenerateRefreshToken();
 
-            user.SetRefreshToken(refreshToken);
+            SetRefreshToken(user, refreshToken);
             await _userRepository.UpdateUserAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
@@ -121,7 +68,7 @@ namespace ZadatakV2.Service.Services
 
             if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
-                user.DeleteRefreshToken();
+                DeleteRefreshToken(user);
                 await _userRepository.UpdateUserAsync(user);
                 return new LoginServiceResponse();
             }
@@ -129,10 +76,22 @@ namespace ZadatakV2.Service.Services
             string accessToken = _jwtProvider.GenerateAccessToken(user);
             string refreshToken = _jwtProvider.GenerateRefreshToken();
 
-            user.SetRefreshToken(refreshToken);
+            SetRefreshToken(user, refreshToken);
             await _userRepository.UpdateUserAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
+        }
+
+        private void SetRefreshToken(User user, string refreshToken)
+        {
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+        }
+
+        private void DeleteRefreshToken(User user)
+        {
+            user.RefreshToken = null;
+            user.RefreshTokenExpiryTime = DateTime.MinValue;
         }
     }
 }

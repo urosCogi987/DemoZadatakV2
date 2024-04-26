@@ -5,5 +5,6 @@ namespace ZadatakV2.Persistance.Abstractions
     public interface IStudentRepository
     {
         Task<long> AddStudentAsync(Student student);
+        Task<bool> IsIndexUniqueAsync(string index);
     }
 }

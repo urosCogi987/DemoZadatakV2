@@ -54,7 +54,9 @@ void ConfigureServices(IServiceCollection services)
     services.AddEndpointsApiExplorer();
     
     ConfigureSwagger(services);
-    
+
+    services.AddExceptionHandler<AppExceptionHandler>();
+
     services.AddAutoMapper(typeof(UserProfile));
 
     services.AddScoped<IUserRepository, UserRepository>();    
@@ -111,13 +113,13 @@ void ConfigureApp(WebApplication app)
         });
     }
 
+    app.UseExceptionHandler(_ => { });
+
     app.UseHttpsRedirection();
 
     app.UseAuthentication();
 
-    app.UseAuthorization();
-
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
+    app.UseAuthorization();    
 
     app.MapControllers();    
 }

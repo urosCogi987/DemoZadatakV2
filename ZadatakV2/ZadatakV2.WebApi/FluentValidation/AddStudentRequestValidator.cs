@@ -22,8 +22,7 @@ namespace ZadatakV2.WebApi.FluentValidation
                 .WithMessage(FluentValidationMessages.SurnameIsRequired);
 
             RuleFor(x => x.Index)
-                .Matches(RegularExpressions.IndexRegex)
-                
+                .Matches(RegularExpressions.IndexRegex)                
                 .Length(3)
                 .WithMessage(FluentValidationMessages.IndexFormatIncorrect);
         }

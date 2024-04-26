@@ -2,7 +2,7 @@
 
 namespace ZadatakV2.Dto.Models
 {
-    public class RefreshTokenRequest : IRefreshTokenRequest
+    public sealed class RefreshTokenRequest : IRefreshTokenRequest
     {
         public string RefreshToken { get; set; }
     }    

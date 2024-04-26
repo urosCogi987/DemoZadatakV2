@@ -2,7 +2,7 @@
 
 namespace ZadatakV2.Dto.Models
 {
-    public class LoginResponse : ILoginResponse
+    public sealed class LoginResponse : ILoginResponse
     {
         public string AccessToken { get; set; }
 

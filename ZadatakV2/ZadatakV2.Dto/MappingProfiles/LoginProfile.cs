@@ -9,10 +9,10 @@ namespace ZadatakV2.Dto.MappingProfiles
     {
         public LoginProfile()
             => CreateMap<ILoginServiceResponse, ILoginResponse>()
-                    .ConstructUsing(serviceResponse => new LoginResponse() 
-                                        {
-                                            AccessToken = serviceResponse.AccessToken,
-                                            RefreshToken = serviceResponse.RefreshToken
-                                        });    
+                .ConstructUsing(serviceResponse => new LoginResponse() 
+                    {
+                        AccessToken = serviceResponse.AccessToken,
+                        RefreshToken = serviceResponse.RefreshToken
+                    });    
     }
 }
