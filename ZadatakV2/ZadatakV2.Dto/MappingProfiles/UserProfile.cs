@@ -7,7 +7,6 @@ namespace ZadatakV2.WebApi.MappingProfiles
     public sealed class UserProfile : Profile
     {
         public UserProfile()        
-            => CreateMap<RegisterRequest, User>();
-        
+            => CreateMap<RegisterRequest, User>();        
     }
 }

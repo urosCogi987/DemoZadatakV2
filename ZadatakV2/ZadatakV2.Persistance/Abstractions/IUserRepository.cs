@@ -8,5 +8,6 @@ namespace ZadatakV2.Domain.Repositories
         Task<User?> FindUserByEmailAsync(string email);
         Task<User?> FindUserByIdAsync(long id);
         Task UpdateUserAsync(User user);
+        Task<bool> IsEmailUniqueAsync(string index);
     }
 }

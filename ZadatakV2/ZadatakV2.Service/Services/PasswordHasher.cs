@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.WebApi.Services

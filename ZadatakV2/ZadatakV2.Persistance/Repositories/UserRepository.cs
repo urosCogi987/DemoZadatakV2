@@ -25,6 +25,9 @@ namespace ZadatakV2.Persistance.Repositories
         public async Task<User?> FindUserByIdAsync(long id)
             => await _dbContext.Set<User>().FirstOrDefaultAsync(user => user.Id == id);
 
+        public async Task<bool> IsEmailUniqueAsync(string email)
+            => !(await _dbContext.Set<User>().AnyAsync(user => user.Email == email));
+
         public async Task UpdateUserAsync(User user)
         {
             _dbContext.Set<User>().Entry(user).State = EntityState.Modified;

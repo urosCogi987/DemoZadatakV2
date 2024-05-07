@@ -1,10 +1,15 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
+using System.Reflection;
 using System.Text;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Abstractions;
@@ -16,6 +21,9 @@ using ZadatakV2.WebApi.MappingProfiles;
 using ZadatakV2.WebApi.Middlewares;
 using ZadatakV2.WebApi.Services;
 
+
+[assembly: RootNamespace("ZadatakV2.Shared.Resources")]
+
 var builder = WebApplication.CreateBuilder(args);
 ConfigureServices(builder.Services);
 WebApplication app = builder.Build();
@@ -24,6 +32,9 @@ app.Run();
 
 void ConfigureServices(IServiceCollection services)
 {
+    
+    ConfigureLocalization(services);
+
     string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
     services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(connectionString));
@@ -54,7 +65,9 @@ void ConfigureServices(IServiceCollection services)
     services.AddEndpointsApiExplorer();
     
     ConfigureSwagger(services);
-    
+
+    services.AddExceptionHandler<AppExceptionHandler>();
+
     services.AddAutoMapper(typeof(UserProfile));
 
     services.AddScoped<IUserRepository, UserRepository>();    
@@ -67,6 +80,30 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IStudentService, StudentService>();
 
     services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+}
+
+void ConfigureLocalization(IServiceCollection services)
+{
+    services.AddLocalization();
+    var defaultCulture = "en-US";
+
+    var supportedCultures = new[]
+    {
+        new CultureInfo(defaultCulture),
+        new CultureInfo("sr-Latn-RS")
+    };
+
+    services.Configure<RequestLocalizationOptions>(options => 
+    {
+        options.DefaultRequestCulture = new RequestCulture(defaultCulture);
+        options.SupportedCultures = supportedCultures;
+        options.SupportedUICultures = supportedCultures;
+        //options.ApplyCurrentCultureToResponseHeaders = true;
+        options.RequestCultureProviders = new List<IRequestCultureProvider>()
+        {
+            new AcceptLanguageHeaderRequestCultureProvider()
+        };
+    });
 }
 
 void ConfigureSwagger(IServiceCollection services)
@@ -102,6 +139,9 @@ void ConfigureSwagger(IServiceCollection services)
 
 void ConfigureApp(WebApplication app)
 {    
+    var localizeOptions = app.Services.GetService<IOptions<RequestLocalizationOptions>>();
+    app.UseRequestLocalization(localizeOptions.Value);  
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -111,13 +151,13 @@ void ConfigureApp(WebApplication app)
         });
     }
 
+    app.UseExceptionHandler(_ => { });
+
     app.UseHttpsRedirection();
 
     app.UseAuthentication();
 
-    app.UseAuthorization();
-
-    app.UseMiddleware<ExceptionHandlingMiddleware>();
+    app.UseAuthorization();    
 
     app.MapControllers();    
 }

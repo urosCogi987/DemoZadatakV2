@@ -1,4 +1,5 @@
-﻿using ZadatakV2.Persistance.Abstractions;
+﻿using Microsoft.EntityFrameworkCore;
+using ZadatakV2.Persistance.Abstractions;
 using ZadatakV2.Persistance.Entities;
 using ZadatakV2.WebApi;
 
@@ -17,5 +18,8 @@ namespace ZadatakV2.Persistance.Repositories
             await _dbContext.SaveChangesAsync();
             return student.Id;
         }
+
+        public async Task<bool> IsIndexUniqueAsync(string index)        
+            => !(await _dbContext.Set<Student>().AnyAsync(student => student.Index == index));        
     }
 }

@@ -2,6 +2,7 @@
 using ZadatakV2.Persistance.Abstractions;
 using ZadatakV2.Persistance.Entities;
 using ZadatakV2.Service.Abstractions;
+using ZadatakV2.Shared.Exceptions;
 using ZadatakV2.Shared.Interfaces;
 
 namespace ZadatakV2.Service.Services
@@ -18,7 +19,10 @@ namespace ZadatakV2.Service.Services
         }            
         
         public async Task<long> AddStudentAsync(IAddStudentRequest addStudentRequest)
-        {
+        {            
+            if (!await _studentRepository.IsIndexUniqueAsync(addStudentRequest.Index))
+                throw new UniqueConstraintViolationException($"Student with index: {addStudentRequest.Index} already exists.");
+
             Student student = _mapper.Map<Student>(addStudentRequest);
             return await _studentRepository.AddStudentAsync(student);
         }
