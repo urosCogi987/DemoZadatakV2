@@ -8,8 +8,8 @@ namespace ZadatakV2.WebApi.Middlewares
     public class AppExceptionHandler : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, 
-                                              Exception exception, 
-                                              CancellationToken cancellationToken)
+                                                    Exception exception, 
+                                                    CancellationToken cancellationToken)
         {
             var result = new ProblemDetails();
             switch (exception)
@@ -34,6 +34,16 @@ namespace ZadatakV2.WebApi.Middlewares
                         Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
                     };
                     break;
+                case EntityNotFoundException entityNotFoundException:
+                    result = new ProblemDetails
+                    {
+                        Status = (int)HttpStatusCode.NotFound,
+                        Type = entityNotFoundException.GetType().Name,
+                        Title = "Not found",
+                        Detail = entityNotFoundException.Message,
+                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+                    };
+                    break;
                 default:
                     result = new ProblemDetails
                     {
@@ -46,6 +56,7 @@ namespace ZadatakV2.WebApi.Middlewares
                     break;
             }
 
+            httpContext.Response.StatusCode = (int)result.Status;
             await httpContext.Response.WriteAsJsonAsync(result, cancellationToken: cancellationToken);
             return true;
         }

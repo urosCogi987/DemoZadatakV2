@@ -1,12 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Entities;
 using ZadatakV2.Service.Abstractions;
 using ZadatakV2.Service.Models.CustomModels;
+using ZadatakV2.Shared.Exceptions;
 using ZadatakV2.Shared.Interfaces;
 using ZadatakV2.Shared.NewFolder;
+using ZadatakV2.Shared.Resources;
 
 namespace ZadatakV2.Service.Services
 {
@@ -17,22 +20,29 @@ namespace ZadatakV2.Service.Services
         private readonly IMapper _mapper;
         private readonly IJwtProvider _jwtProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IStringLocalizer<Resource> _localizer;
 
         public AuthService(IPasswordHasher passwordHasher,
                            IUserRepository userRepository,
                            IMapper mapper,
                            IJwtProvider jwtProvider,
-                           IHttpContextAccessor httpContextAccessor)
+                           IHttpContextAccessor httpContextAccessor,
+                           IStringLocalizer<Resource> localizer)
+
         {
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
             _mapper = mapper;
             _jwtProvider = jwtProvider;
             _httpContextAccessor = httpContextAccessor;
+            _localizer = localizer;
         }                
 
         public async Task<long> RegisterUserAscync(IRegisterRequest registerRequest)
         {
+            if (!await _userRepository.IsEmailUniqueAsync(registerRequest.Email))
+                throw new UniqueConstraintViolationException($"User with email: {registerRequest.Email} already exists.");
+
             User user = _mapper.Map<User>(registerRequest);
             user.Password = _passwordHasher.Hash(registerRequest.Password);
             return await _userRepository.AddUserAsync(user);            
@@ -40,13 +50,18 @@ namespace ZadatakV2.Service.Services
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)
         {
+            LocalizedString localizerString = _localizer[ResourceKeys.INVALID_CREDENTIALS];
+            var str2 = _localizer["Nesto"];
+            
+
+
             User? user = await _userRepository.FindUserByEmailAsync(loginRequest.Email);
             if (user == null)
-                throw new Exception("Invalid credentials.");
+                throw new EntityNotFoundException(_localizer[ResourceKeys.INVALID_CREDENTIALS]); 
 
             bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
             if (!verified)
-                throw new Exception("Invalid credentials.");
+                throw new EntityNotFoundException("Invalid credentials.");
 
             string accessToken = _jwtProvider.GenerateAccessToken(user);
             string refreshToken = _jwtProvider.GenerateRefreshToken();

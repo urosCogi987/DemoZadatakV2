@@ -22,6 +22,24 @@ namespace ZadatakV2.Persistance.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
+                {
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.HasKey("StudentId", "SubjectId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("Grade");
+                });
+
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Student", b =>
                 {
                     b.Property<long>("Id")
@@ -107,6 +125,21 @@ namespace ZadatakV2.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
+                {
+                    b.HasOne("ZadatakV2.Persistance.Entities.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZadatakV2.Persistance.Entities.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

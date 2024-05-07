@@ -4,7 +4,7 @@ using ZadatakV2.Persistance.Entities;
 
 namespace ZadatakV2.Persistance.Configurations
 {
-    public class StudentConfiguration : IEntityTypeConfiguration<Student>
+    public sealed class StudentConfiguration : IEntityTypeConfiguration<Student>
     {
         public void Configure(EntityTypeBuilder<Student> builder)
         {
@@ -13,6 +13,8 @@ namespace ZadatakV2.Persistance.Configurations
 
             builder.HasIndex(x => x.Email).IsUnique();                        
             builder.HasIndex(x => x.Index).IsUnique();
+
+            builder.HasMany(x => x.Subjects).WithMany().UsingEntity<Grade>();
         }
     }
 }

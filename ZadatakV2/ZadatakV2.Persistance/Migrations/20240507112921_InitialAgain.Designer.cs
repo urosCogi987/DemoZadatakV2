@@ -12,8 +12,8 @@ using ZadatakV2.WebApi;
 namespace ZadatakV2.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240426101510_StudentSubjectEntity")]
-    partial class StudentSubjectEntity
+    [Migration("20240507112921_InitialAgain")]
+    partial class InitialAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,24 @@ namespace ZadatakV2.Persistance.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
+                {
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("Value")
+                        .HasColumnType("integer");
+
+                    b.HasKey("StudentId", "SubjectId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("Grade");
+                });
 
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Student", b =>
                 {
@@ -110,6 +128,21 @@ namespace ZadatakV2.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
+                {
+                    b.HasOne("ZadatakV2.Persistance.Entities.Student", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZadatakV2.Persistance.Entities.Subject", null)
+                        .WithMany()
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

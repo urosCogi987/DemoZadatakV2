@@ -7,5 +7,7 @@
         public string Surname { get; set; }
         public string Index { get; set; }        
         public string Email { get; set; }        
+
+        public ICollection<Subject> Subjects { get; set; }
     }
 }
