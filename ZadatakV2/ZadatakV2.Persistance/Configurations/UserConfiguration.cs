@@ -9,7 +9,7 @@ namespace ZadatakV2.WebApi.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();
+            builder.Property(x => x.Id).ValueGeneratedOnAdd();            
 
             builder.HasIndex(x => x.Email).IsUnique();            
         }

@@ -72,12 +72,16 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<IUserRepository, UserRepository>();    
     services.AddScoped<IStudentRepository, StudentRepository>();
+    services.AddScoped<ISubjectRepository, SubjectRepository>();
+    services.AddScoped<IGradeRepository, GradeRepository>();
 
     services.AddScoped<IPasswordHasher, PasswordHasher>();
     services.AddScoped<IJwtProvider, JwtProvider>();
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();
+    services.AddScoped<ISubjectService, SubjectService>();
+    services.AddScoped<IGradeService, GradeService>();
 
     services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 }
