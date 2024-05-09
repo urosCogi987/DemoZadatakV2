@@ -19,8 +19,7 @@ namespace ZadatakV2.Service.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IJwtProvider _jwtProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IStringLocalizer<Resource> _localizer;
+        private readonly IHttpContextAccessor _httpContextAccessor;        
 
         public AuthService(IPasswordHasher passwordHasher,
                            IUserRepository userRepository,
@@ -34,8 +33,7 @@ namespace ZadatakV2.Service.Services
             _userRepository = userRepository;
             _mapper = mapper;
             _jwtProvider = jwtProvider;
-            _httpContextAccessor = httpContextAccessor;
-            _localizer = localizer;
+            _httpContextAccessor = httpContextAccessor;            
         }                
 
         public async Task<long> RegisterUserAscync(IRegisterRequest registerRequest)
@@ -52,11 +50,11 @@ namespace ZadatakV2.Service.Services
         {           
             User? user = await _userRepository.FindUserByEmailAsync(loginRequest.Email);
             if (user == null)
-                throw new EntityNotFoundException(_localizer[Resource.INVALID_CREDENTIALS]);
+                throw new EntityNotFoundException(Resource.INVALID_CREDENTIALS);
             
             bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
             if (!verified)
-                throw new EntityNotFoundException(_localizer[Resource.INVALID_CREDENTIALS]);
+                throw new EntityNotFoundException(Resource.INVALID_CREDENTIALS);
 
             string accessToken = _jwtProvider.GenerateAccessToken(user);
             string refreshToken = _jwtProvider.GenerateRefreshToken();

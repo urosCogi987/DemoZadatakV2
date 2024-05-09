@@ -19,6 +19,6 @@ namespace ZadatakV2.Persistance.Repositories
         }
 
         public async Task<bool> DoesGradeExist(long studentId, long subjectId)
-            => !(await _dbContext.Set<Grade>().AnyAsync(grade => grade.StudentId == studentId && grade.SubjectId == subjectId));
+            => (await _dbContext.Set<Grade>().AnyAsync(grade => grade.StudentId == studentId && grade.SubjectId == subjectId));
     }
 }
