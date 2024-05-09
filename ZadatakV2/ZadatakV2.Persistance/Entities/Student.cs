@@ -9,5 +9,6 @@
         public string Email { get; set; }        
 
         public ICollection<Subject> Subjects { get; set; }
+        public ICollection<StudentExam> StudentExams { get; set; }
     }
 }

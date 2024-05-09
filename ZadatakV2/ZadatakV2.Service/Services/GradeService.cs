@@ -17,11 +17,10 @@ namespace ZadatakV2.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<long> AddGradeAsync(IAddGradeRequest addGradeRequest)
+        public async Task AddGradeAsync(IAddGradeRequest addGradeRequest)
         {
-            Grade grade = _mapper.Map<Grade>(addGradeRequest);
-            grade.AddedOn = DateTime.UtcNow;
-            return await _gradeRepository.AddGradeAsync(grade);
+            Grade grade = _mapper.Map<Grade>(addGradeRequest);            
+            await _gradeRepository.AddGradeAsync(grade);
         }
     }
 }

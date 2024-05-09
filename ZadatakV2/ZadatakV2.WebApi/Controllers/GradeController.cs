@@ -19,8 +19,8 @@ namespace ZadatakV2.WebApi.Controllers
         [HttpPost]   
         public async Task<IActionResult> Add(AddGradeRequest gradeRequest)
         {
-            long id = await _gradeService.AddGradeAsync(gradeRequest);
-            return Ok(id);
+            await _gradeService.AddGradeAsync(gradeRequest);
+            return Ok();
         }
     }
 }

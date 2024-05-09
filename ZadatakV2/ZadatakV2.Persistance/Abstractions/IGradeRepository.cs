@@ -4,6 +4,6 @@ namespace ZadatakV2.Persistance.Abstractions
 {
     public interface IGradeRepository
     {
-        Task<long> AddGradeAsync(Grade grade);
+        Task AddGradeAsync(Grade grade);
     }
 }

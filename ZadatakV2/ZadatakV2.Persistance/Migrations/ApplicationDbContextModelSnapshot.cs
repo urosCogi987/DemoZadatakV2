@@ -24,29 +24,18 @@ namespace ZadatakV2.Persistance.Migrations
 
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
                 {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<long>("SubjectId")
                         .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("AddedOn")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<long>("StudentId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("SubjectId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("Value")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.HasKey("SubjectId", "StudentId");
 
                     b.HasIndex("StudentId");
-
-                    b.HasIndex("SubjectId");
 
                     b.ToTable("Grade");
                 });
@@ -84,6 +73,35 @@ namespace ZadatakV2.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("Student");
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.StudentExam", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Mark")
+                        .HasColumnType("integer");
+
+                    b.Property<long>("StudentId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SubjectId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("TakenOn")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("SubjectId");
+
+                    b.ToTable("StudentExam");
                 });
 
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Subject", b =>
@@ -143,14 +161,43 @@ namespace ZadatakV2.Persistance.Migrations
                     b.HasOne("ZadatakV2.Persistance.Entities.Student", null)
                         .WithMany()
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ZadatakV2.Persistance.Entities.Subject", null)
                         .WithMany()
                         .HasForeignKey("SubjectId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.StudentExam", b =>
+                {
+                    b.HasOne("ZadatakV2.Persistance.Entities.Student", "Student")
+                        .WithMany("StudentExams")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZadatakV2.Persistance.Entities.Subject", "Subject")
+                        .WithMany("StudentExams")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Student", b =>
+                {
+                    b.Navigation("StudentExams");
+                });
+
+            modelBuilder.Entity("ZadatakV2.Persistance.Entities.Subject", b =>
+                {
+                    b.Navigation("StudentExams");
                 });
 #pragma warning restore 612, 618
         }

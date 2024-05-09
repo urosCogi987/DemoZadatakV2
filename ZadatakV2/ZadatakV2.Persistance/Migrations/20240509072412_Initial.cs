@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ZadatakV2.Persistance.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialAgain : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -68,7 +68,7 @@ namespace ZadatakV2.Persistance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Grade", x => new { x.StudentId, x.SubjectId });
+                    table.PrimaryKey("PK_Grade", x => new { x.SubjectId, x.StudentId });
                     table.ForeignKey(
                         name: "FK_Grade_Student_StudentId",
                         column: x => x.StudentId,
@@ -83,10 +83,38 @@ namespace ZadatakV2.Persistance.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "StudentExam",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    StudentId = table.Column<long>(type: "bigint", nullable: false),
+                    SubjectId = table.Column<long>(type: "bigint", nullable: false),
+                    Mark = table.Column<int>(type: "integer", nullable: false),
+                    TakenOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentExam", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudentExam_Student_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Student",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_StudentExam_Subject_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subject",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
-                name: "IX_Grade_SubjectId",
+                name: "IX_Grade_StudentId",
                 table: "Grade",
-                column: "SubjectId");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Student_Email",
@@ -99,6 +127,16 @@ namespace ZadatakV2.Persistance.Migrations
                 table: "Student",
                 column: "Index",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentExam_StudentId",
+                table: "StudentExam",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentExam_SubjectId",
+                table: "StudentExam",
+                column: "SubjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Subject_Name",
@@ -118,6 +156,9 @@ namespace ZadatakV2.Persistance.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Grade");
+
+            migrationBuilder.DropTable(
+                name: "StudentExam");
 
             migrationBuilder.DropTable(
                 name: "User");
