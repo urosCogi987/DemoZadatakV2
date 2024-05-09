@@ -20,6 +20,7 @@ using ZadatakV2.WebApi;
 using ZadatakV2.WebApi.MappingProfiles;
 using ZadatakV2.WebApi.Middlewares;
 using ZadatakV2.WebApi.Services;
+using ZadatakV2.WebApi.SwaggerConfiguration;
 
 
 [assembly: RootNamespace("ZadatakV2.Shared.Resources")]
@@ -77,7 +78,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IStudentExamRepository, StudentExamRepository>();
 
     services.AddScoped<IPasswordHasher, PasswordHasher>();
-    services.AddScoped<IJwtProvider, JwtProvider>();
+    services.AddScoped<IJwtProvider, JwtProvider>();    
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();
@@ -140,6 +141,7 @@ void ConfigureSwagger(IServiceCollection services)
             new string[] {}
         }
         });
+        c.OperationFilter<AddHeaderParameter>();
     });
 }
 

@@ -117,8 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ANOTHER" xml:space="preserve">
-    <value>jfdasklfasdf</value>
+  <data name="GRADE_ALREADY_EXISTS" xml:space="preserve">
+    <value>Student je vec polozio ovaj ispit</value>
+  </data>
+  <data name="GRADE_VALUES" xml:space="preserve">
+    <value>Vrednost ocene moze biti 6-10</value>
   </data>
   <data name="INVALID_CREDENTIALS" xml:space="preserve">
     <value>Kredencijali nisu validni</value>

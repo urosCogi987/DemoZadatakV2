@@ -7,6 +7,11 @@ namespace ZadatakV2.WebApi.Middlewares
 {
     public class AppExceptionHandler : IExceptionHandler
     {
+        private readonly ILogger<AppExceptionHandler> _logger;
+
+        public AppExceptionHandler(ILogger<AppExceptionHandler> logger)
+            => _logger = logger;
+        
         public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, 
                                                     Exception exception, 
                                                     CancellationToken cancellationToken)
@@ -17,42 +22,41 @@ namespace ZadatakV2.WebApi.Middlewares
                 case ArgumentNullException argumentNullException:
                     result = new ProblemDetails
                     {
-                        Status = (int)HttpStatusCode.NotFound,
-                        Type = argumentNullException.GetType().Name,
-                        Title = "An unexpected error occurred",
-                        Detail = argumentNullException.Message,
-                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}",
+                        Status = (int)HttpStatusCode.NotFound,                                                
+                        Detail = argumentNullException.Message,                        
                     };                    
                     break;
                 case UniqueConstraintViolationException uniqueConstraintException:
                     result = new ProblemDetails
                     {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Type = uniqueConstraintException.GetType().Name,
-                        Title = "Bad request",
-                        Detail = uniqueConstraintException.Message,
-                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+                        Status = (int)HttpStatusCode.BadRequest,                                                
+                        Detail = uniqueConstraintException.Message,                        
                     };
                     break;
                 case EntityNotFoundException entityNotFoundException:
                     result = new ProblemDetails
                     {
-                        Status = (int)HttpStatusCode.NotFound,
-                        Type = entityNotFoundException.GetType().Name,
-                        Title = "Not found",
-                        Detail = entityNotFoundException.Message,
-                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+                        Status = (int)HttpStatusCode.NotFound,                                                
+                        Detail = entityNotFoundException.Message,                        
                     };
+                    break;
+                case InvalidRequestException invalidRequestException:
+                    result = new ProblemDetails
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,                                                
+                        Detail = invalidRequestException.Message,                        
+                    };                    
                     break;
                 default:
                     result = new ProblemDetails
                     {
-                        Status = (int)HttpStatusCode.InternalServerError,
-                        Type = exception.GetType().Name,
-                        Title = "An unexpected error occurred",
-                        Detail = exception.Message,
-                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
-                    };                    
+                        Status = (int)HttpStatusCode.InternalServerError,                                                
+                        Detail = "An unexpected error occurred"                        
+                    };
+                    _logger.LogError($"\nStatus: {(int)HttpStatusCode.InternalServerError}\n" +
+                                     $"Type: {exception.GetType().Name}\n" +                                     
+                                     $"Detail: {exception.Message}\n" +
+                                     $"Instance: {httpContext.Request.Method} {httpContext.Request.Path}");
                     break;
             }
 
