@@ -8,7 +8,7 @@ namespace ZadatakV2.Persistance.Configurations
     {
         public void Configure(EntityTypeBuilder<Grade> builder)
         {
-            builder.HasKey(x => new { x.StudentId, x.SubjectId });
+            builder.HasKey(x => new { x.SubjectId, x.StudentId});                       
         }
     }
 }

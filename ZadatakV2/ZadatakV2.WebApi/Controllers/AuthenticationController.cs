@@ -41,19 +41,6 @@ namespace ZadatakV2.WebApi.Controllers
         {            
             ILoginServiceResponse response = await _authenticationService.RefreshTokenAsync(refreshTokenRequest);
             return _mapper.Map<LoginResponse>(response);            
-        }
-
-        [HttpGet("test")]
-        [Authorize]
-        public async Task<IActionResult> Test()
-        {
-            return Ok("authenticated");
-        }
-
-        [HttpGet("test2")]
-        public async Task<IActionResult> Test2()
-        {
-            return Ok("allow anonymus");
-        }
+        }        
     }
 }
