@@ -44,6 +44,16 @@ namespace ZadatakV2.WebApi.Middlewares
                         Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
                     };
                     break;
+                case InvalidRequestException invalidRequestException:
+                    result = new ProblemDetails
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Type = invalidRequestException.GetType().Name,
+                        Title = "Invalid request",
+                        Detail = invalidRequestException.Message,
+                        Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}"
+                    };
+                    break;
                 default:
                     result = new ProblemDetails
                     {

@@ -49,17 +49,11 @@ namespace ZadatakV2.Service.Services
         }
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)
-        {
-            LocalizedString localizerString = _localizer[Resource.INVALID_CREDENTIALS];
-            var str2 = _localizer[Resource.ANOTHER];
-
-
-
+        {           
             User? user = await _userRepository.FindUserByEmailAsync(loginRequest.Email);
             if (user == null)
                 throw new EntityNotFoundException(_localizer[Resource.INVALID_CREDENTIALS]);
             
-
             bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
             if (!verified)
                 throw new EntityNotFoundException(_localizer[Resource.INVALID_CREDENTIALS]);

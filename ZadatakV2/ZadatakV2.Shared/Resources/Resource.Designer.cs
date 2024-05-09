@@ -61,11 +61,20 @@ namespace ZadatakV2.Shared.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to another.
+        ///   Looks up a localized string similar to Student has already passed the exam..
         /// </summary>
-        public static string ANOTHER {
+        public static string GRADE_ALREADY_EXISTS {
             get {
-                return ResourceManager.GetString("ANOTHER", resourceCulture);
+                return ResourceManager.GetString("GRADE_ALREADY_EXISTS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Grade values can be 6-10..
+        /// </summary>
+        public static string GRADE_VALUES {
+            get {
+                return ResourceManager.GetString("GRADE_VALUES", resourceCulture);
             }
         }
         
