@@ -71,6 +71,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddAutoMapper(typeof(UserProfile));
 
+    services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
     services.AddScoped<IUserRepository, UserRepository>();    
     services.AddScoped<IStudentRepository, StudentRepository>();
     services.AddScoped<ISubjectRepository, SubjectRepository>();

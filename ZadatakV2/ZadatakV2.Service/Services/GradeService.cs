@@ -24,7 +24,7 @@ namespace ZadatakV2.Service.Services
         {
             await ValidateGrade(addGradeRequest);
             Grade grade = _mapper.Map<Grade>(addGradeRequest);            
-            await _gradeRepository.AddGradeAsync(grade);
+            await _gradeRepository.AddItemAsync(grade);
         }
 
         private async Task ValidateGrade(IAddGradeRequest addGradeRequest)

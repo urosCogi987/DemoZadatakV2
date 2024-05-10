@@ -17,8 +17,8 @@ namespace ZadatakV2.WebApi.Controllers
         [HttpPost]        
         public async Task<IActionResult> Add(AddSubjectRequest studentRequest)
         {
-            long id = await _subjectService.AddStudentAsync(studentRequest);
-            return Ok(id);
+            await _subjectService.AddSubjectAsync(studentRequest);
+            return Ok();
         }
 
         [HttpDelete]

@@ -2,9 +2,8 @@
 
 namespace ZadatakV2.Persistance.Abstractions
 {
-    public interface IGradeRepository
-    {
-        Task AddGradeAsync(Grade grade);
+    public interface IGradeRepository : IRepository<Grade>
+    {        
         Task<bool> DoesGradeExist(long studentId, long subjectId);
     }
 }

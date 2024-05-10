@@ -17,11 +17,11 @@ namespace ZadatakV2.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<long> AddStudentExamAsync(IAddStudentExamRequest addStudentExamRequest)
+        public async Task AddStudentExamAsync(IAddStudentExamRequest addStudentExamRequest)
         {
             StudentExam studentExam = _mapper.Map<StudentExam>(addStudentExamRequest);
             studentExam.TakenOn = DateTime.UtcNow;
-            return await _studentExamRepository.AddStudentExamAsync(studentExam);
+            await _studentExamRepository.AddItemAsync(studentExam);
         }
     }
 }

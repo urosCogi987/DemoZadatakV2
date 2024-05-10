@@ -18,13 +18,13 @@ namespace ZadatakV2.Service.Services
             _mapper = mapper;
         }            
         
-        public async Task<long> AddStudentAsync(IAddStudentRequest addStudentRequest)
+        public async Task AddStudentAsync(IAddStudentRequest addStudentRequest)
         {            
             if (!await _studentRepository.IsIndexUniqueAsync(addStudentRequest.Index))
                 throw new UniqueConstraintViolationException($"Student with index: {addStudentRequest.Index} already exists.");
 
             Student student = _mapper.Map<Student>(addStudentRequest);
-            return await _studentRepository.AddStudentAsync(student);
+            await _studentRepository.AddItemAsync(student);
         }
     }
 }

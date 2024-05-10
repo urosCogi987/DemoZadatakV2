@@ -15,7 +15,7 @@ namespace ZadatakV2.WebApi.Controllers
         private readonly IMapper _mapper;
 
         public AuthenticationController(IAuthService authenticationService,                              
-                              IMapper mapper)
+                                        IMapper mapper)
         {
             _authenticationService = authenticationService;            
             _mapper = mapper;
@@ -24,8 +24,8 @@ namespace ZadatakV2.WebApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
-            long id = await _authenticationService.RegisterUserAscync(registerRequest);                                        
-            return Ok(id);
+            await _authenticationService.RegisterUserAscync(registerRequest);                                        
+            return Ok();
         }
 
         [HttpPost("login")]
