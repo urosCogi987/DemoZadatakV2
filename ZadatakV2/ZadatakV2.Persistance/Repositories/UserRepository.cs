@@ -9,14 +9,7 @@ namespace ZadatakV2.Persistance.Repositories
     {        
         public UserRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-        }
-
-        public async Task<long> AddUserAsync(User user)
-        {
-            await _dbContext.Set<User>().AddAsync(user);
-            await _dbContext.SaveChangesAsync();
-            return user.Id;
-        }
+        }       
 
         public async Task<User?> FindUserByEmailAsync(string email)        
             => await _dbContext.Set<User>().FirstOrDefaultAsync(user => user.Email == email);        
