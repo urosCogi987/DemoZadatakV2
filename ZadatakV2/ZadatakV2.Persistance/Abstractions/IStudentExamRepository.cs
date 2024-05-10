@@ -2,8 +2,7 @@
 
 namespace ZadatakV2.Persistance.Abstractions
 {
-    public interface IStudentExamRepository
-    {
-        Task<long> AddStudentExamAsync(StudentExam studentExam);
+    public interface IStudentExamRepository : IRepository<StudentExam>
+    {        
     }
 }

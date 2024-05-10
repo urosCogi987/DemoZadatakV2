@@ -4,7 +4,7 @@ namespace ZadatakV2.Service.Abstractions
 {
     public interface ISubjectService
     {
-        Task<long> AddStudentAsync(IAddSubjectRequest addSubjectRequest);
+        Task AddSubjectAsync(IAddSubjectRequest addSubjectRequest);
         Task DeleteSubjectAsync(long subjectId);
     }
 }

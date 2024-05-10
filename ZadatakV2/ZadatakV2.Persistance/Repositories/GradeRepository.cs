@@ -5,12 +5,11 @@ using ZadatakV2.WebApi;
 
 namespace ZadatakV2.Persistance.Repositories
 {
-    public class GradeRepository : IGradeRepository
-    {
-        private readonly ApplicationDbContext _dbContext;
-
-        public GradeRepository(ApplicationDbContext dbContext)
-            => _dbContext = dbContext;
+    public class GradeRepository : Repository<Grade>, IGradeRepository
+    {        
+        public GradeRepository(ApplicationDbContext dbContext) : base(dbContext)
+        {
+        }
 
         public async Task AddGradeAsync(Grade grade)
         {

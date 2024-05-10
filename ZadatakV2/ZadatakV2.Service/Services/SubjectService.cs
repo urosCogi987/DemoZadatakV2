@@ -18,22 +18,22 @@ namespace ZadatakV2.Service.Services
             _mapper = mapper;
         }
 
-        public async Task<long> AddStudentAsync(IAddSubjectRequest addSubjectRequest)
+        public async Task AddSubjectAsync(IAddSubjectRequest addSubjectRequest)
         {
             if (!await _subjectRepository.IsNameUniqueAsync(addSubjectRequest.Name)) 
                 throw new UniqueConstraintViolationException($"Subject with name: {addSubjectRequest.Name} already exists.");
 
             Subject subject = _mapper.Map<Subject>(addSubjectRequest);
-            return await _subjectRepository.AddSubjectAsync(subject);
+            await _subjectRepository.AddItemAsync(subject);
         }
 
         public async Task DeleteSubjectAsync(long subjectId)
         {
-            Subject? subject = await _subjectRepository.GetSubjectByIdAsync(subjectId);
+            Subject? subject = await _subjectRepository.GetItemByIdAsync(subjectId);
             if (subject is null)
                 throw new EntityNotFoundException($"Subject with id {subjectId} does not exist.");
 
-            await _subjectRepository.DeleteSubjectAsync(subject);
+            await _subjectRepository.DeleteItemAsync(subject);
         }
     }
 }

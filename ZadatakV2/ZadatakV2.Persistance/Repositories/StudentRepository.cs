@@ -5,19 +5,11 @@ using ZadatakV2.WebApi;
 
 namespace ZadatakV2.Persistance.Repositories
 {
-    public class StudentRepository : IStudentRepository
-    {
-        private readonly ApplicationDbContext _dbContext;
-
-        public StudentRepository(ApplicationDbContext dbContext)
-            => _dbContext = dbContext;
-
-        public async Task<long> AddStudentAsync(Student student)
+    public class StudentRepository : Repository<Student>, IStudentRepository
+    {        
+        public StudentRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
-            await _dbContext.Set<Student>().AddAsync(student);
-            await _dbContext.SaveChangesAsync();
-            return student.Id;
-        }
+        }        
 
         public async Task<bool> IsIndexUniqueAsync(string index)        
             => !(await _dbContext.Set<Student>().AnyAsync(student => student.Index == index));        

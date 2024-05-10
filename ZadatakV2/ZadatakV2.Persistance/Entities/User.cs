@@ -1,6 +1,6 @@
 ﻿namespace ZadatakV2.Persistance.Entities
 {
-    public class User
+    public sealed class User
     {
         public long Id { get; set; }
         public string? Email { get; set; }

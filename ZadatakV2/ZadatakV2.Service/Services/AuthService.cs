@@ -36,14 +36,14 @@ namespace ZadatakV2.Service.Services
             _httpContextAccessor = httpContextAccessor;            
         }                
 
-        public async Task<long> RegisterUserAscync(IRegisterRequest registerRequest)
+        public async Task RegisterUserAscync(IRegisterRequest registerRequest)
         {
             if (!await _userRepository.IsEmailUniqueAsync(registerRequest.Email))
                 throw new UniqueConstraintViolationException($"User with email: {registerRequest.Email} already exists.");
 
             User user = _mapper.Map<User>(registerRequest);
-            user.Password = _passwordHasher.Hash(registerRequest.Password);
-            return await _userRepository.AddUserAsync(user);            
+            user.Password = _passwordHasher.Hash(registerRequest.Password);            
+            await _userRepository.AddItemAsync(user);
         }
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)
@@ -60,7 +60,7 @@ namespace ZadatakV2.Service.Services
             string refreshToken = _jwtProvider.GenerateRefreshToken();
 
             SetRefreshToken(user, refreshToken);
-            await _userRepository.UpdateUserAsync(user);
+            await _userRepository.UpdateItemAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
         }
@@ -70,14 +70,14 @@ namespace ZadatakV2.Service.Services
             long id = -1;
             long.TryParse(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out id);
             
-            User user = await _userRepository.FindUserByIdAsync(id);
+            User user = await _userRepository.GetItemByIdAsync(id);
             if (user is null)
-                throw new Exception("Uer with that id doesnt exist");
+                throw new EntityNotFoundException("Uer with that id doesnt exist");
 
             if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
                 DeleteRefreshToken(user);
-                await _userRepository.UpdateUserAsync(user);
+                await _userRepository.UpdateItemAsync(user);
                 return new LoginServiceResponse();
             }
 
@@ -85,7 +85,7 @@ namespace ZadatakV2.Service.Services
             string refreshToken = _jwtProvider.GenerateRefreshToken();
 
             SetRefreshToken(user, refreshToken);
-            await _userRepository.UpdateUserAsync(user);
+            await _userRepository.UpdateItemAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
         }
