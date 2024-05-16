@@ -38,7 +38,7 @@ namespace ZadatakV2.WebApi.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public string GenerateRefreshToken()
+        public string GenerateEmptyToken()
         {
             var randomNumber = new byte[64];
 

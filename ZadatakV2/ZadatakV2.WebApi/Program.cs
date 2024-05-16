@@ -9,10 +9,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Globalization;
-using System.Reflection;
 using System.Text;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Abstractions;
+using ZadatakV2.Persistance.Entities;
 using ZadatakV2.Persistance.Repositories;
 using ZadatakV2.Service.Abstractions;
 using ZadatakV2.Service.Services;
@@ -80,12 +80,14 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddScoped<IPasswordHasher, PasswordHasher>();
     services.AddScoped<IJwtProvider, JwtProvider>();    
+    services.AddScoped<IEmailProvider, EmailProvider>();
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();
     services.AddScoped<ISubjectService, SubjectService>();
     services.AddScoped<IGradeService, GradeService>();
     services.AddScoped<IStudentExamService, StudentExamService>();
+    services.AddScoped<IUserService, UserService>();
 
     services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 }

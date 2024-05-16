@@ -24,7 +24,7 @@ namespace ZadatakV2.WebApi.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest registerRequest)
         {
-            await _authenticationService.RegisterUserAscync(registerRequest);                                        
+            await _authenticationService.RegisterUserAsync(registerRequest);                                        
             return Ok();
         }
 
@@ -32,8 +32,15 @@ namespace ZadatakV2.WebApi.Controllers
         public async Task<LoginResponse> Login([FromBody] LoginRequest loginRequest)
         {            
             ILoginServiceResponse response = await _authenticationService.LoginAsync(loginRequest);
-            return _mapper.Map<LoginResponse>(response);
-            
+            return _mapper.Map<LoginResponse>(response);            
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            await _authenticationService.LogoutAsync();
+            return Ok();
         }
 
         [HttpPost("refresh")]        
@@ -41,6 +48,13 @@ namespace ZadatakV2.WebApi.Controllers
         {            
             ILoginServiceResponse response = await _authenticationService.RefreshTokenAsync(refreshTokenRequest);
             return _mapper.Map<LoginResponse>(response);            
-        }        
+        }
+
+        [HttpGet("verify")]
+        public async Task<IActionResult> Verify([FromQuery] string token)
+        {
+            await _authenticationService.VerifyEmailAsync(token);
+            return Ok();
+        }
     }
 }

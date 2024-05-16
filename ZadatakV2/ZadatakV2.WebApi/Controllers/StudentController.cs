@@ -6,7 +6,7 @@ using ZadatakV2.Service.Abstractions;
 namespace ZadatakV2.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     [ApiController]
     public class StudentController : ControllerBase
     {

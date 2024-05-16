@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Localization;
 using System.Security.Claims;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Entities;
@@ -19,6 +18,7 @@ namespace ZadatakV2.Service.Services
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
         private readonly IJwtProvider _jwtProvider;
+        private readonly IEmailProvider _emailProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;        
 
         public AuthService(IPasswordHasher passwordHasher,
@@ -26,24 +26,26 @@ namespace ZadatakV2.Service.Services
                            IMapper mapper,
                            IJwtProvider jwtProvider,
                            IHttpContextAccessor httpContextAccessor,
-                           IStringLocalizer<Resource> localizer)
-
+                           IEmailProvider emailProvider)
         {
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
             _mapper = mapper;
             _jwtProvider = jwtProvider;
-            _httpContextAccessor = httpContextAccessor;            
+            _httpContextAccessor = httpContextAccessor;
+            _emailProvider = emailProvider;
         }                
 
-        public async Task RegisterUserAscync(IRegisterRequest registerRequest)
+        public async Task RegisterUserAsync(IRegisterRequest registerRequest)
         {
-            if (!await _userRepository.IsEmailUniqueAsync(registerRequest.Email))
-                throw new UniqueConstraintViolationException($"User with email: {registerRequest.Email} already exists.");
-
-            User user = _mapper.Map<User>(registerRequest);
-            user.Password = _passwordHasher.Hash(registerRequest.Password);            
-            await _userRepository.AddItemAsync(user);
+            if (await _userRepository.IsEmailUniqueAsync(registerRequest.Email))            
+            {
+                User user = _mapper.Map<User>(registerRequest);
+                user.Password = _passwordHasher.Hash(registerRequest.Password);
+                user.VerificationToken = _jwtProvider.GenerateEmptyToken();
+                await _userRepository.AddItemAsync(user);
+                await _emailProvider.SendConfirmationEmaiAsync(user.Email! ,user.VerificationToken);
+            }            
         }
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)
@@ -56,8 +58,14 @@ namespace ZadatakV2.Service.Services
             if (!verified)
                 throw new EntityNotFoundException(Resource.INVALID_CREDENTIALS);
 
+            if (!await _userRepository.IsEmailVerified(user.Email!))
+                throw new InvalidRequestException("Email is not verified");
+
+            if (await _userRepository.IsUserBlocked(user.Id))
+                throw new InvalidRequestException("Your accout has been restricted from using this API.");
+
             string accessToken = _jwtProvider.GenerateAccessToken(user);
-            string refreshToken = _jwtProvider.GenerateRefreshToken();
+            string refreshToken = _jwtProvider.GenerateEmptyToken();
 
             SetRefreshToken(user, refreshToken);
             await _userRepository.UpdateItemAsync(user);
@@ -65,14 +73,25 @@ namespace ZadatakV2.Service.Services
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
         }
 
+        public async Task LogoutAsync()
+        {
+            long id = GetUserIdFromContext();
+
+            User? user = await _userRepository.GetItemByIdAsync(id);
+            if (user is null)
+                throw new EntityNotFoundException("Uer is not logged in");
+
+            DeleteRefreshToken(user);
+            await _userRepository.UpdateItemAsync(user);
+        }
+
         public async Task<ILoginServiceResponse> RefreshTokenAsync(IRefreshTokenRequest refreshTokenRequest)
         {
-            long id = -1;
-            long.TryParse(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out id);
-            
-            User user = await _userRepository.GetItemByIdAsync(id);
+            long id = GetUserIdFromContext();
+
+            User? user = await _userRepository.GetItemByIdAsync(id);
             if (user is null)
-                throw new EntityNotFoundException("Uer with that id doesnt exist");
+                throw new EntityNotFoundException("Uer is not logged in");
 
             if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
@@ -82,12 +101,22 @@ namespace ZadatakV2.Service.Services
             }
 
             string accessToken = _jwtProvider.GenerateAccessToken(user);
-            string refreshToken = _jwtProvider.GenerateRefreshToken();
+            string refreshToken = _jwtProvider.GenerateEmptyToken();
 
             SetRefreshToken(user, refreshToken);
             await _userRepository.UpdateItemAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
+        }
+
+        public async Task VerifyEmailAsync(string token)
+        {
+            User? user = await _userRepository.GetUserByVerificationToken(token);
+            if (user is null)
+                throw new InvalidRequestException("Invalid token");
+
+            user.IsEmailVerified = true;
+            await _userRepository.UpdateItemAsync(user);
         }
 
         private void SetRefreshToken(User user, string refreshToken)
@@ -100,6 +129,14 @@ namespace ZadatakV2.Service.Services
         {
             user.RefreshToken = null;
             user.RefreshTokenExpiryTime = DateTime.MinValue;
-        }
+        }        
+
+        private long GetUserIdFromContext()
+        {
+            long id = -1;
+            long.TryParse(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out id);
+
+            return id;
+        }        
     }
 }

@@ -7,5 +7,8 @@ namespace ZadatakV2.Domain.Repositories
     {        
         Task<User?> FindUserByEmailAsync(string email);                
         Task<bool> IsEmailUniqueAsync(string index);
+        Task<bool> IsEmailVerified(string email);
+        Task<User?> GetUserByVerificationToken(string token);
+        Task<bool> IsUserBlocked(long id);
     }
 }
