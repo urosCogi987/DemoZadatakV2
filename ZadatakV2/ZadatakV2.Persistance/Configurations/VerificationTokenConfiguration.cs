@@ -4,12 +4,11 @@ using ZadatakV2.Persistance.Entities;
 
 namespace ZadatakV2.Persistance.Configurations
 {
-    public sealed class StudentExamConfiguration : IEntityTypeConfiguration<StudentExam>
+    public sealed class VerificationTokenConfiguration : IEntityTypeConfiguration<VerificationToken>
     {
-        public void Configure(EntityTypeBuilder<StudentExam> builder)
+        public void Configure(EntityTypeBuilder<VerificationToken> builder)
         {
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();            
         }
     }
 }

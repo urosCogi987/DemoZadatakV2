@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using ZadatakV2.Domain.Repositories;
+using ZadatakV2.Persistance.Abstractions;
 using ZadatakV2.Persistance.Entities;
 using ZadatakV2.Service.Abstractions;
 using ZadatakV2.Service.Models.CustomModels;
@@ -19,14 +21,16 @@ namespace ZadatakV2.Service.Services
         private readonly IMapper _mapper;
         private readonly IJwtProvider _jwtProvider;
         private readonly IEmailProvider _emailProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;        
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IVerificationTokenRepository _verificationTokenRepository;
 
         public AuthService(IPasswordHasher passwordHasher,
                            IUserRepository userRepository,
                            IMapper mapper,
                            IJwtProvider jwtProvider,
                            IHttpContextAccessor httpContextAccessor,
-                           IEmailProvider emailProvider)
+                           IEmailProvider emailProvider,
+                           IVerificationTokenRepository verificationTokenRepository)
         {
             _passwordHasher = passwordHasher;
             _userRepository = userRepository;
@@ -34,18 +38,24 @@ namespace ZadatakV2.Service.Services
             _jwtProvider = jwtProvider;
             _httpContextAccessor = httpContextAccessor;
             _emailProvider = emailProvider;
-        }                
+            _verificationTokenRepository = verificationTokenRepository;
+        }
 
         public async Task RegisterUserAsync(IRegisterRequest registerRequest)
         {
-            if (await _userRepository.IsEmailUniqueAsync(registerRequest.Email))            
-            {
-                User user = _mapper.Map<User>(registerRequest);
-                user.Password = _passwordHasher.Hash(registerRequest.Password);
-                user.VerificationToken = _jwtProvider.GenerateEmptyToken();
-                await _userRepository.AddItemAsync(user);
-                await _emailProvider.SendConfirmationEmaiAsync(user.Email! ,user.VerificationToken);
-            }            
+            if (!await _userRepository.IsEmailUniqueAsync(registerRequest.Email))
+                return;
+
+            User user = _mapper.Map<User>(registerRequest);
+            user.Password = _passwordHasher.Hash(registerRequest.Password);
+
+            VerificationToken token = new();
+            token.Token = _jwtProvider.GenerateEmptyToken();
+            token.TokenExpiryTime = DateTime.UtcNow.AddHours(1);            
+
+            await _userRepository.AddItemAsync(user);
+            await _verificationTokenRepository.AddItemAsync(token);
+            await _emailProvider.SendConfirmationEmaiAsync(user.Email! ,token.Token);            
         }
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)

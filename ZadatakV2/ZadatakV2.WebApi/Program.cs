@@ -77,6 +77,7 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<ISubjectRepository, SubjectRepository>();
     services.AddScoped<IGradeRepository, GradeRepository>();
     services.AddScoped<IStudentExamRepository, StudentExamRepository>();
+    services.AddScoped<IVerificationTokenRepository, VerificationTokenRepository>();
 
     services.AddScoped<IPasswordHasher, PasswordHasher>();
     services.AddScoped<IJwtProvider, JwtProvider>();    

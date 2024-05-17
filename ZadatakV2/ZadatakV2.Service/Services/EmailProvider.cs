@@ -23,9 +23,8 @@ namespace ZadatakV2.Service.Services
             var plainTextContent = $"Verify email: {url}";
             var htmlContent = $"<strong>Verify email: <a href=\"{url}\">verify</strong>";
             var msg = MailHelper.CreateSingleEmail(from_email, to_email, subject, plainTextContent, htmlContent);
-            var response = await client.SendEmailAsync(msg).ConfigureAwait(false);
-            var y = 6;
-            var z = 100;
+            
+            var response = await client.SendEmailAsync(msg).ConfigureAwait(false);            
         }
     }
 }
