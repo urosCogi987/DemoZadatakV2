@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Abstractions;
@@ -14,71 +13,55 @@ using ZadatakV2.Shared.Resources;
 
 namespace ZadatakV2.Service.Services
 {
-    public sealed class AuthService : IAuthService
-    {
-        private readonly IPasswordHasher _passwordHasher;
-        private readonly IUserRepository _userRepository;
-        private readonly IMapper _mapper;
-        private readonly IJwtProvider _jwtProvider;
-        private readonly IEmailProvider _emailProvider;
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IVerificationTokenRepository _verificationTokenRepository;
-
-        public AuthService(IPasswordHasher passwordHasher,
-                           IUserRepository userRepository,
-                           IMapper mapper,
-                           IJwtProvider jwtProvider,
-                           IHttpContextAccessor httpContextAccessor,
-                           IEmailProvider emailProvider,
-                           IVerificationTokenRepository verificationTokenRepository)
-        {
-            _passwordHasher = passwordHasher;
-            _userRepository = userRepository;
-            _mapper = mapper;
-            _jwtProvider = jwtProvider;
-            _httpContextAccessor = httpContextAccessor;
-            _emailProvider = emailProvider;
-            _verificationTokenRepository = verificationTokenRepository;
-        }
-
+    public sealed class AuthService(IPasswordHasher passwordHasher,
+                                    IUserRepository userRepository,
+                                    IMapper mapper,
+                                    IJwtProvider jwtProvider,
+                                    IHttpContextAccessor httpContextAccessor,
+                                    IEmailProvider emailProvider,
+                                    IVerificationTokenRepository verificationTokenRepository) : IAuthService
+    {       
         public async Task RegisterUserAsync(IRegisterRequest registerRequest)
         {
-            if (!await _userRepository.IsEmailUniqueAsync(registerRequest.Email))
+            if (!await userRepository.IsEmailUniqueAsync(registerRequest.Email))
                 return;
 
-            User user = _mapper.Map<User>(registerRequest);
-            user.Password = _passwordHasher.Hash(registerRequest.Password);
+            User user = mapper.Map<User>(registerRequest);
+            user.Password = passwordHasher.Hash(registerRequest.Password);
+            long userId = await userRepository.AddUserAsync(user);
+            
+            VerificationToken token = new()
+            {
+                Value = jwtProvider.GenerateEmptyToken(),
+                TokenExpiryTime = DateTime.UtcNow.AddHours(1),
+                UserId = userId
+            };
 
-            VerificationToken token = new();
-            token.Token = _jwtProvider.GenerateEmptyToken();
-            token.TokenExpiryTime = DateTime.UtcNow.AddHours(1);            
-
-            await _userRepository.AddItemAsync(user);
-            await _verificationTokenRepository.AddItemAsync(token);
-            await _emailProvider.SendConfirmationEmaiAsync(user.Email! ,token.Token);            
+            await verificationTokenRepository.AddItemAsync(token);
+            await emailProvider.SendConfirmationEmaiAsync(user.Email! ,token.Value);            
         }
 
         public async Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest)
         {           
-            User? user = await _userRepository.FindUserByEmailAsync(loginRequest.Email);
+            User? user = await userRepository.FindUserByEmailAsync(loginRequest.Email);
             if (user == null)
                 throw new EntityNotFoundException(Resource.INVALID_CREDENTIALS);
             
-            bool verified = _passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
+            bool verified = passwordHasher.VerifyPassword(user.Password, loginRequest.Password);
             if (!verified)
                 throw new EntityNotFoundException(Resource.INVALID_CREDENTIALS);
 
-            if (!await _userRepository.IsEmailVerified(user.Email!))
+            if (!await userRepository.IsEmailVerified(user.Email!))
                 throw new InvalidRequestException("Email is not verified");
 
-            if (await _userRepository.IsUserBlocked(user.Id))
+            if (await userRepository.IsUserBlocked(user.Id))
                 throw new InvalidRequestException("Your accout has been restricted from using this API.");
 
-            string accessToken = _jwtProvider.GenerateAccessToken(user);
-            string refreshToken = _jwtProvider.GenerateEmptyToken();
+            string accessToken = jwtProvider.GenerateAccessToken(user);
+            string refreshToken = jwtProvider.GenerateEmptyToken();
 
             SetRefreshToken(user, refreshToken);
-            await _userRepository.UpdateItemAsync(user);
+            await userRepository.UpdateItemAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
         }
@@ -87,46 +70,46 @@ namespace ZadatakV2.Service.Services
         {
             long id = GetUserIdFromContext();
 
-            User? user = await _userRepository.GetItemByIdAsync(id);
+            User? user = await userRepository.GetItemByIdAsync(id);
             if (user is null)
                 throw new EntityNotFoundException("Uer is not logged in");
 
             DeleteRefreshToken(user);
-            await _userRepository.UpdateItemAsync(user);
+            await userRepository.UpdateItemAsync(user);
         }
 
         public async Task<ILoginServiceResponse> RefreshTokenAsync(IRefreshTokenRequest refreshTokenRequest)
         {
             long id = GetUserIdFromContext();
 
-            User? user = await _userRepository.GetItemByIdAsync(id);
+            User? user = await userRepository.GetItemByIdAsync(id);
             if (user is null)
                 throw new EntityNotFoundException("Uer is not logged in");
 
             if (user.RefreshToken != refreshTokenRequest.RefreshToken || user.RefreshTokenExpiryTime < DateTime.UtcNow)
             {
                 DeleteRefreshToken(user);
-                await _userRepository.UpdateItemAsync(user);
+                await userRepository.UpdateItemAsync(user);
                 return new LoginServiceResponse();
             }
 
-            string accessToken = _jwtProvider.GenerateAccessToken(user);
-            string refreshToken = _jwtProvider.GenerateEmptyToken();
+            string accessToken = jwtProvider.GenerateAccessToken(user);
+            string refreshToken = jwtProvider.GenerateEmptyToken();
 
             SetRefreshToken(user, refreshToken);
-            await _userRepository.UpdateItemAsync(user);
+            await userRepository.UpdateItemAsync(user);
 
             return new LoginServiceResponse { AccessToken = accessToken, RefreshToken = refreshToken };
         }
 
         public async Task VerifyEmailAsync(string token)
         {
-            User? user = await _userRepository.GetUserByVerificationToken(token);
+            User? user = await verificationTokenRepository.GetUserByToken(token);                        
             if (user is null)
                 throw new InvalidRequestException("Invalid token");
 
             user.IsEmailVerified = true;
-            await _userRepository.UpdateItemAsync(user);
+            await userRepository.UpdateItemAsync(user);
         }
 
         private void SetRefreshToken(User user, string refreshToken)
@@ -144,7 +127,7 @@ namespace ZadatakV2.Service.Services
         private long GetUserIdFromContext()
         {
             long id = -1;
-            long.TryParse(_httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out id);
+            long.TryParse(httpContextAccessor.HttpContext!.User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out id);
 
             return id;
         }        

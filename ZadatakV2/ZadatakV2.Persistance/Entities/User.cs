@@ -10,6 +10,6 @@
         public bool IsEmailVerified { get; set; }
         public bool IsBlocked { get; set; }
 
-        public VerificationToken? VerificationToken { get; set; }
+        public ICollection<VerificationToken>? VerificationTokens { get; set; }
     }
 }

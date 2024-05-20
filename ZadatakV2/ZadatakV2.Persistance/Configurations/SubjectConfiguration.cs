@@ -11,8 +11,7 @@ namespace ZadatakV2.Persistance.Configurations
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
 
-            builder.HasIndex(x => x.Name).IsUnique();
-            //builder.HasMany(x => x.Students).WithMany().UsingEntity<Student>();
+            builder.HasIndex(x => x.Name).IsUnique();            
         }
     }
 }

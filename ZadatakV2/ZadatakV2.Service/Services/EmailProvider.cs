@@ -5,19 +5,14 @@ using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.Service.Services
 {
-    public class EmailProvider : IEmailProvider
-    {
-        private readonly IConfiguration _configuration;
-
-        public EmailProvider(IConfiguration configuration)
-            => _configuration = configuration;
-
+    public class EmailProvider(IConfiguration configuration) : IEmailProvider
+    {       
         public async Task SendConfirmationEmaiAsync(string email, string token)
         {
             string url = $"https://localhost:7107/api/authentication/verify?token={token}";
             
-            var client = new SendGridClient(_configuration["Sendgrid:ApiKey"]);
-            var from_email = new EmailAddress(_configuration["Sendgrid:Verifiedsender"]);
+            var client = new SendGridClient(configuration["Sendgrid:ApiKey"]);
+            var from_email = new EmailAddress(configuration["Sendgrid:Verifiedsender"]);
             var subject = "VerifyEmail";
             var to_email = new EmailAddress(email);
             var plainTextContent = $"Verify email: {url}";

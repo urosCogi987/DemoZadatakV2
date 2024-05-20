@@ -12,9 +12,9 @@ using System.Globalization;
 using System.Text;
 using ZadatakV2.Domain.Repositories;
 using ZadatakV2.Persistance.Abstractions;
-using ZadatakV2.Persistance.Entities;
 using ZadatakV2.Persistance.Repositories;
 using ZadatakV2.Service.Abstractions;
+using ZadatakV2.Service.HostedServices;
 using ZadatakV2.Service.Services;
 using ZadatakV2.WebApi;
 using ZadatakV2.WebApi.MappingProfiles;
@@ -57,7 +57,7 @@ void ConfigureServices(IServiceCollection services)
 
     services.AddAuthorization();
 
-    services.AddControllers();        
+    services.AddControllers();    
     
     services.AddFluentValidationAutoValidation();
     services.AddFluentValidationClientsideAdapters();    
@@ -82,6 +82,8 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IPasswordHasher, PasswordHasher>();
     services.AddScoped<IJwtProvider, JwtProvider>();    
     services.AddScoped<IEmailProvider, EmailProvider>();
+
+    services.AddHostedService<TokenDeletingService>();    
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();

@@ -10,16 +10,11 @@ using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.WebApi.Services
 {
-    public sealed class JwtProvider : IJwtProvider
-    {
-        private readonly IConfiguration _configuration;
-
-        public JwtProvider(IConfiguration configuration)
-            => _configuration = configuration;
-
+    public sealed class JwtProvider(IConfiguration configuration) : IJwtProvider
+    {        
         public string GenerateAccessToken(User user)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:SecretKey"]!));
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
@@ -29,8 +24,8 @@ namespace ZadatakV2.WebApi.Services
             };
 
 
-            var token = new JwtSecurityToken(_configuration["Jwt:Issuer"],
-                                             _configuration["Jwt:Audience"],
+            var token = new JwtSecurityToken(configuration["Jwt:Issuer"],
+                                             configuration["Jwt:Audience"],
                                              claims,
                                              expires: DateTime.Now.AddMinutes(30),
                                              signingCredentials: credentials);

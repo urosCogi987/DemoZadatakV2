@@ -8,28 +8,18 @@ using ZadatakV2.Shared.Resources;
 
 namespace ZadatakV2.Service.Services
 {
-    public class GradeService : IGradeService
-    {
-        private readonly IGradeRepository _gradeRepository;
-        private readonly IMapper _mapper;        
-
-        public GradeService(IGradeRepository gradeRepository,
-                            IMapper mapper)
-        {
-            _gradeRepository = gradeRepository;
-            _mapper = mapper;            
-        }
-
+    public class GradeService(IGradeRepository gradeRepository, IMapper mapper) : IGradeService
+    {       
         public async Task AddGradeAsync(IAddGradeRequest addGradeRequest)
         {
             await ValidateGrade(addGradeRequest);
-            Grade grade = _mapper.Map<Grade>(addGradeRequest);            
-            await _gradeRepository.AddItemAsync(grade);
+            Grade grade = mapper.Map<Grade>(addGradeRequest);            
+            await gradeRepository.AddItemAsync(grade);
         }
 
         private async Task ValidateGrade(IAddGradeRequest addGradeRequest)
         {
-            if (await _gradeRepository.DoesGradeExist(addGradeRequest.StudentId, addGradeRequest.SubjectId))                
+            if (await gradeRepository.DoesGradeExist(addGradeRequest.StudentId, addGradeRequest.SubjectId))                
                 throw new InvalidRequestException(Resource.GRADE_ALREADY_EXISTS);
 
             if (addGradeRequest.Value < 6 || addGradeRequest.Value > 10)                

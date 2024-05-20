@@ -6,22 +6,13 @@ using ZadatakV2.Shared.Interfaces;
 
 namespace ZadatakV2.Service.Services
 {
-    public class StudentExamService : IStudentExamService
-    {
-        private readonly IStudentExamRepository _studentExamRepository;
-        private readonly IMapper _mapper;
-
-        public StudentExamService(IStudentExamRepository studentExamRepository, IMapper mapper)
-        {
-            _studentExamRepository = studentExamRepository;
-            _mapper = mapper;
-        }
-
+    public class StudentExamService(IStudentExamRepository studentExamRepository, IMapper mapper) : IStudentExamService
+    {        
         public async Task AddStudentExamAsync(IAddStudentExamRequest addStudentExamRequest)
         {
-            StudentExam studentExam = _mapper.Map<StudentExam>(addStudentExamRequest);
+            StudentExam studentExam = mapper.Map<StudentExam>(addStudentExamRequest);
             studentExam.TakenOn = DateTime.UtcNow;
-            await _studentExamRepository.AddItemAsync(studentExam);
+            await studentExamRepository.AddItemAsync(studentExam);
         }
     }
 }

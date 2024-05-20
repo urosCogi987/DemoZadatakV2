@@ -7,17 +7,12 @@ namespace ZadatakV2.WebApi.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class UserController : ControllerBase
-    {
-        private readonly IUserService _userService;
-
-        public UserController(IUserService userService)        
-            => _userService = userService;
-
+    public class UserController(IUserService userService) : ControllerBase
+    {       
         [HttpPut("block/{id}")]
         public async Task<IActionResult> BlockUser(long id)
         {
-            await _userService.BlockUserAsync(id);
+            await userService.BlockUserAsync(id);
             return Ok();
         }
     }

@@ -8,17 +8,12 @@ namespace ZadatakV2.WebApi.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class GradeController : ControllerBase
-    {
-        private readonly IGradeService _gradeService;
-
-        public GradeController(IGradeService gradeService)        
-            => _gradeService = gradeService;
-
+    public class GradeController(IGradeService gradeService) : ControllerBase
+    {       
         [HttpPost]   
         public async Task<IActionResult> Add(AddGradeRequest gradeRequest)
         {
-            await _gradeService.AddGradeAsync(gradeRequest);
+            await gradeService.AddGradeAsync(gradeRequest);
             return Ok();
         }
     }

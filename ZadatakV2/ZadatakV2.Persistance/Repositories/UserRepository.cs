@@ -20,8 +20,12 @@ namespace ZadatakV2.Persistance.Repositories
         public async Task<bool> IsEmailVerified(string  email)
             => await _dbContext.Set<User>().AnyAsync(user => user.Email == email && user.IsEmailVerified == true);
 
-        public async Task<User?> GetUserByVerificationToken(string token)
-            => await _dbContext.Set<User>().FirstOrDefaultAsync(user => user.VerificationToken == token);
+        public async Task<long> AddUserAsync(User user)
+        {
+            await _dbContext.Set<User>().AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+            return user.Id;
+        }
 
         public async Task<bool> IsUserBlocked(long id)
             => await _dbContext.Set<User>().AnyAsync(user => user.Id == id && user.IsBlocked == true);
