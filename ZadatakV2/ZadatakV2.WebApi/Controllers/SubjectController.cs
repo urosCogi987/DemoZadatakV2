@@ -1,30 +1,26 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ZadatakV2.Dto.Models;
 using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     [ApiController]    
-    public class SubjectController : ControllerBase
-    {
-        private readonly ISubjectService _subjectService;
-
-        public SubjectController(ISubjectService subjectService)
-            => _subjectService = subjectService;
-
+    public class SubjectController(ISubjectService subjectService) : ControllerBase
+    {       
         [HttpPost]        
         public async Task<IActionResult> Add(AddSubjectRequest studentRequest)
         {
-            await _subjectService.AddSubjectAsync(studentRequest);
+            await subjectService.AddSubjectAsync(studentRequest);
             return Ok();
         }
 
         [HttpDelete]
         public async Task<IActionResult> Delete(long id)
         {
-            await _subjectService.DeleteSubjectAsync(id);
+            await subjectService.DeleteSubjectAsync(id);
             return Ok();
         }
     }

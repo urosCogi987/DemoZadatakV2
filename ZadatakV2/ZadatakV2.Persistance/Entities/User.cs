@@ -6,6 +6,10 @@
         public string? Email { get; set; }
         public string? Password { get; set; }
         public string? RefreshToken { get; set; }
-        public DateTime RefreshTokenExpiryTime { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }                
+        public bool IsEmailVerified { get; set; }
+        public bool IsBlocked { get; set; }
+
+        public ICollection<VerificationToken>? VerificationTokens { get; set; }
     }
 }

@@ -5,8 +5,10 @@ namespace ZadatakV2.Service.Abstractions
 {
     public interface IAuthService
     {
-        Task RegisterUserAscync(IRegisterRequest registerRequest);
+        Task RegisterUserAsync(IRegisterRequest registerRequest);
         Task<ILoginServiceResponse> LoginAsync(ILoginRequest loginRequest);
-        Task<ILoginServiceResponse> RefreshTokenAsync(IRefreshTokenRequest refreshTokenRequest); 
+        Task LogoutAsync();
+        Task<ILoginServiceResponse> RefreshTokenAsync(IRefreshTokenRequest refreshTokenRequest);
+        Task VerifyEmailAsync(string token);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ZadatakV2.WebApi;
@@ -11,9 +12,11 @@ using ZadatakV2.WebApi;
 namespace ZadatakV2.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240516131900_UserBlocking")]
+    partial class UserBlocking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -154,36 +157,15 @@ namespace ZadatakV2.Persistance.Migrations
                     b.Property<DateTime>("RefreshTokenExpiryTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("VerificationToken")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
                     b.ToTable("User");
-                });
-
-            modelBuilder.Entity("ZadatakV2.Persistance.Entities.VerificationToken", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("TokenExpiryTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("VerificationToken");
                 });
 
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Grade", b =>
@@ -220,17 +202,6 @@ namespace ZadatakV2.Persistance.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("ZadatakV2.Persistance.Entities.VerificationToken", b =>
-                {
-                    b.HasOne("ZadatakV2.Persistance.Entities.User", "User")
-                        .WithMany("VerificationTokens")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Student", b =>
                 {
                     b.Navigation("StudentExams");
@@ -239,11 +210,6 @@ namespace ZadatakV2.Persistance.Migrations
             modelBuilder.Entity("ZadatakV2.Persistance.Entities.Subject", b =>
                 {
                     b.Navigation("StudentExams");
-                });
-
-            modelBuilder.Entity("ZadatakV2.Persistance.Entities.User", b =>
-                {
-                    b.Navigation("VerificationTokens");
                 });
 #pragma warning restore 612, 618
         }

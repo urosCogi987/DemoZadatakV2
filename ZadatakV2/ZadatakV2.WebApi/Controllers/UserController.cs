@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ZadatakV2.Dto.Models;
 using ZadatakV2.Service.Abstractions;
 
 namespace ZadatakV2.WebApi.Controllers
@@ -8,12 +7,12 @@ namespace ZadatakV2.WebApi.Controllers
     [Route("api/[controller]")]
     [Authorize]
     [ApiController]
-    public class GradeController(IGradeService gradeService) : ControllerBase
+    public class UserController(IUserService userService) : ControllerBase
     {       
-        [HttpPost]   
-        public async Task<IActionResult> Add(AddGradeRequest gradeRequest)
+        [HttpPut("block/{id}")]
+        public async Task<IActionResult> BlockUser(long id)
         {
-            await gradeService.AddGradeAsync(gradeRequest);
+            await userService.BlockUserAsync(id);
             return Ok();
         }
     }

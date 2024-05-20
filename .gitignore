@@ -399,3 +399,6 @@ FodyWeavers.xsd
 /BuyMaterials.Core/src/BuyMaterials.WebApi/appsettings.Development.json
 /BuyMaterials.Core/src/BuyMaterials.WebApi/appsettings.Development.json
 /**/.sonarqube
+
+appsettings.Development.json
+

@@ -6,21 +6,14 @@ using ZadatakV2.Service.Abstractions;
 namespace ZadatakV2.WebApi.Controllers
 {
     [Route("api/[controller]")]
-    //[Authorize]
+    [Authorize]
     [ApiController]
-    public class StudentController : ControllerBase
-    {
-        private readonly IStudentService _studentService;
-
-        public StudentController(IStudentService studentService)
-        {
-            _studentService = studentService;
-        }
-
+    public class StudentController(IStudentService studentService) : ControllerBase
+    {        
         [HttpPost]
         public async Task<IActionResult> Add(AddStudentRequest studentRequest)
         {            
-            await _studentService.AddStudentAsync(studentRequest);
+            await studentService.AddStudentAsync(studentRequest);
             return Ok();
         }
     }

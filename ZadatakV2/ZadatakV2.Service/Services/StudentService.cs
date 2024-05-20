@@ -7,24 +7,15 @@ using ZadatakV2.Shared.Interfaces;
 
 namespace ZadatakV2.Service.Services
 {
-    public class StudentService : IStudentService
-    {
-        private readonly IStudentRepository _studentRepository;
-        private readonly IMapper _mapper;
-
-        public StudentService(IStudentRepository studentRepository, IMapper mapper)
-        {
-            _studentRepository = studentRepository;
-            _mapper = mapper;
-        }            
-        
+    public class StudentService(IStudentRepository studentRepository, IMapper mapper) : IStudentService
+    {                   
         public async Task AddStudentAsync(IAddStudentRequest addStudentRequest)
         {            
-            if (!await _studentRepository.IsIndexUniqueAsync(addStudentRequest.Index))
+            if (!await studentRepository.IsIndexUniqueAsync(addStudentRequest.Index))
                 throw new UniqueConstraintViolationException($"Student with index: {addStudentRequest.Index} already exists.");
 
-            Student student = _mapper.Map<Student>(addStudentRequest);
-            await _studentRepository.AddItemAsync(student);
+            Student student = mapper.Map<Student>(addStudentRequest);
+            await studentRepository.AddItemAsync(student);
         }
     }
 }
