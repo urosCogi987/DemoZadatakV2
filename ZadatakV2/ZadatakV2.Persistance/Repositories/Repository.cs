@@ -17,10 +17,11 @@ namespace ZadatakV2.Persistance.Repositories
         public async Task<IEnumerable<T>> GetItemsAsync()
             => await _dbContext.Set<T>().ToListAsync();        
 
-        public async Task AddItemAsync(T entity)
+        public async Task<T> AddItemAsync(T entity)
         {
             await _dbContext.Set<T>().AddAsync(entity);
-            await _dbContext.SaveChangesAsync();            
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }        
 
         public async Task UpdateItemAsync(T entity)

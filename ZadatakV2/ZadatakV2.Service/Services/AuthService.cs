@@ -28,13 +28,14 @@ namespace ZadatakV2.Service.Services
 
             User user = mapper.Map<User>(registerRequest);
             user.Password = passwordHasher.Hash(registerRequest.Password);
-            long userId = await userRepository.AddUserAsync(user);
+
+            User addedUser = await userRepository.AddItemAsync(user);
             
             VerificationToken token = new()
             {
                 Value = jwtProvider.GenerateEmptyToken(),
                 TokenExpiryTime = DateTime.UtcNow.AddHours(1),
-                UserId = userId
+                UserId = addedUser.Id
             };
 
             await verificationTokenRepository.AddItemAsync(token);
