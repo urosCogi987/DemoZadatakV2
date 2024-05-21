@@ -83,7 +83,8 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IJwtProvider, JwtProvider>();    
     services.AddScoped<IEmailProvider, EmailProvider>();
 
-    services.AddHostedService<TokenDeletingService>();    
+    services.AddHostedService<TokenDeletingService>();
+    //services.AddHostedService<TokenDeletingServiceV2>();
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();
@@ -110,8 +111,7 @@ void ConfigureLocalization(IServiceCollection services)
     {
         options.DefaultRequestCulture = new RequestCulture(defaultCulture);
         options.SupportedCultures = supportedCultures;
-        options.SupportedUICultures = supportedCultures;
-        //options.ApplyCurrentCultureToResponseHeaders = true;
+        options.SupportedUICultures = supportedCultures;        
         options.RequestCultureProviders = new List<IRequestCultureProvider>()
         {
             new AcceptLanguageHeaderRequestCultureProvider()
