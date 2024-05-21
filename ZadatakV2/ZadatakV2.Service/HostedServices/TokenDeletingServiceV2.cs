@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System.Transactions;
 using ZadatakV2.Persistance.Abstractions;
 using VerificationTokenEntity = ZadatakV2.Persistance.Entities.VerificationToken;
@@ -44,6 +45,7 @@ namespace ZadatakV2.Service.HostedServices
                     }                    
                     catch (Exception ex)
                     {
+                        logger.LogInformation($"Db rollback. Exception: {ex.Message}");
                         transaction.Rollback();
                     }
                 }
