@@ -11,7 +11,6 @@ namespace ZadatakV2.Persistance.Abstractions
         Task UpdateItemAsync(T entity);
         Task DeleteItemAsync(T entity);
         Task DeleteItemsRangeAsync(IEnumerable<T> items);
-        Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate);
-        IDbTransaction BeginTransaction();
+        Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate);        
     }
 }

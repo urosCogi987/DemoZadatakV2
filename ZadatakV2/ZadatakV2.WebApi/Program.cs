@@ -83,8 +83,8 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IJwtProvider, JwtProvider>();    
     services.AddScoped<IEmailProvider, EmailProvider>();
 
-    services.AddHostedService<TokenDeletingService>();
-    //services.AddHostedService<TokenDeletingServiceV2>();
+    //services.AddHostedService<TokenDeletingService>();
+    services.AddHostedService<TokenDeletingServiceV2>();
 
     services.AddScoped<IAuthService, AuthService>();
     services.AddScoped<IStudentService, StudentService>();

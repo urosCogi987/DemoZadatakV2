@@ -2,19 +2,18 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System.Transactions;
 using ZadatakV2.Persistance.Abstractions;
 using VerificationTokenEntity = ZadatakV2.Persistance.Entities.VerificationToken;
 
 namespace ZadatakV2.Service.HostedServices
 {
-    public class TokenDeletingServiceV2(ILogger<TokenDeletingService> logger,
+    public class TokenDeletingServiceV2(ILogger<TokenDeletingServiceV2> logger,
                                         IConfiguration configuration,
                                         IServiceProvider serviceProvider) : BackgroundService
     {
         private const int MinuteInMilliseconds = 60000;
-        private const string ClassName = nameof(TokenDeletingService);
+        private const string ClassName = nameof(TokenDeletingServiceV2);
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -29,25 +28,16 @@ namespace ZadatakV2.Service.HostedServices
                     var verificationTokenRepository = scope.ServiceProvider.GetRequiredService<IVerificationTokenRepository>();
                     List<VerificationTokenEntity> tokens = (await verificationTokenRepository.Find(x => x.TokenExpiryTime < DateTime.UtcNow)).ToList();
 
-                    using var transaction = verificationTokenRepository.BeginTransaction();
-                    try
-                    {                        
+                    using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
                         foreach (var token in tokens)
                         {
-                            if (token.TokenExpiryTime > DateTime.UtcNow)
-                            {
-                                await verificationTokenRepository.DeleteItemAsync(token);
-                                logger.LogInformation($"Deleting verification token with id: {token.Id}");
-                            }
+                            await verificationTokenRepository.DeleteItemAsync(token);
+                            logger.LogInformation($"Deleting verification token with id: {token.Id}");
                         }
 
-                        transaction.Commit();
-                    }                    
-                    catch (Exception ex)
-                    {
-                        logger.LogInformation($"Db rollback. Exception: {ex.Message}");
-                        transaction.Rollback();
-                    }
+                        transactionScope.Complete();
+                    }                                        
                 }
 
                 await Task.Delay(MinuteInMilliseconds * delayMinutes, stoppingToken);

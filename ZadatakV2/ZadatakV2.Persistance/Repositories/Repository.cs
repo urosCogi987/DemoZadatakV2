@@ -55,13 +55,6 @@ namespace ZadatakV2.Persistance.Repositories
         public async Task<IEnumerable<T>> Find(Expression<Func<T, bool>> predicate)
         {
             return await _dbContext.Set<T>().Where(predicate).ToListAsync();
-        }
-
-        public IDbTransaction BeginTransaction()
-        {
-            var transaction = _dbContext.Database.BeginTransaction();
-            return transaction.GetDbTransaction();
-        }
-
+        }        
     }
 }
